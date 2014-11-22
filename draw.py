@@ -78,15 +78,22 @@ class Position :
 
 
 class FractalDrawer (object) :
-    """Abstract class for a generic Koch-style fractal"""
+    """
+    Abstract class for a generic Koch-style fractal
+    We assume that the fractal is built starting from a "basic shape"
+    Basic shape is made up of a finite number of "basic lines"
+    At each iterations each one of such "basic lines" is replaced with the whole fractal
+    There is no limit on position and lenght of basic lines
+    However we need a "basis" for the fractal, and we assume this is the segment (0,0)-(full_size,0)
+    """
     
     (EMPTY, KOCH, NOT_EQ_KOCH, MULTI_KOCH)=(0,1,2,3)  #Supported kinds of fractals
     
     def __init__(self, edges, full_size, description, suggested_iterations):
         """
         Constructor
-        @param edges: list<Position> contains the "elementar pieces" biulding the fractal
-        @param full_size: probably this could be calculated using "edges"; how?
+        @param edges: list<Position> contains the "basic lines" building the fractal
+        @param full_size: the "basis" of the fractal
         @param description a short description to be used as window title
         """
         self.description = description
@@ -179,7 +186,7 @@ class KochSnowflake (FractalDrawer) :
 class KochSnowflake80 (FractalDrawer) :
 
     def __init__(self):
-        degree = pi/180*80
+        degree = pi/180*80  #try changing this parameter from 0 to 90 degrees
         sin_degree = sin(degree)
         cos_degree = cos(degree)
         FractalDrawer.__init__(self,
@@ -362,4 +369,3 @@ if __name__ == "__main__":
     App(available_fractals).mainloop()
     
     
-
