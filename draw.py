@@ -77,7 +77,7 @@ class Position:
     def __str__(self):
         return "(" + str(self.x) + ";" + str(self.y) + ");" + str(self.o_alpha) + ";" + str(self.o_rho)
 
-    def __repr__(self) :
+    def __repr__(self):
         return self.__str__()
 
 
@@ -91,7 +91,7 @@ class FractalDrawer (object):
     However we need a "basis" for the fractal, and we assume this is the segment (0,0)-(full_size,0)
     """
 
-    (EMPTY, KOCH, NOT_EQ_KOCH, MULTI_KOCH) = (0,1,2,3)  #Supported kinds of fractals
+    (EMPTY, KOCH, NOT_EQ_KOCH, MULTI_KOCH) = (0, 1, 2, 3)  # Supported kinds of fractals
 
     def __init__(self, edges, full_size, description, suggested_iterations):
         """
@@ -113,19 +113,19 @@ class FractalDrawer (object):
             self.complexity = FractalDrawer.KOCH  # all elements with same size
             self.common_size = sizes.pop()
         else:
-            self.complexity = FractalDrawer.NOT_EQ_KOCH # elements with different sizes
+            self.complexity = FractalDrawer.NOT_EQ_KOCH  # elements with different sizes
 
     def __str__(self):
         return self.description
 
-    def __repr__(self) :
+    def __repr__(self):
         return self.__str__()
 
     def get_dimension(self):
         """ Calculate fractal dimension """
         if self.complexity == FractalDrawer.KOCH:
             # here: S**d = n * s**d
-            return log(len(self.edges)) / log(self.full_size / self.common_size) 
+            return log(len(self.edges)) / log(self.full_size / self.common_size)
         elif self.complexity == FractalDrawer.NOT_EQ_KOCH:
             # here: S**d = Sum_i ( s_i**d )
             def func(d):
@@ -141,7 +141,7 @@ class FractalDrawer (object):
         """
         Plot this fractal
         @param x,y,o_alpha,o_rho   position, rotation,dimension of given object
-        @param itnum maximum degree of recursion 
+        @param itnum maximum degree of recursion
         """
         # print("qui "+str(x)+" "+str(y)+" "+str(o_alpha)+" "+str(o_rho)+" ")
         if itnum == 0:
@@ -150,7 +150,7 @@ class FractalDrawer (object):
         else:
             scale = o_rho / self.full_size
             # print "qua " + str(scale)
-            for e in self.edges :
+            for e in self.edges:
                 o_alpha1 = o_alpha + e.o_alpha
                 o_rho1 = e.o_rho * scale
                 [x1, y1] = to_cart(o_alpha + e.alpha, e.rho * scale, x, y)
@@ -158,7 +158,7 @@ class FractalDrawer (object):
 
     def draw(self):
         """ Plot this fractal with standard parameters """
-        self._draw(0,0,0,1,self.suggested_iterations)
+        self._draw(0, 0, 0, 1, self.suggested_iterations)
 
     def get_expected_num_calls(self, itnum=None):
         if itnum is None:
@@ -166,7 +166,7 @@ class FractalDrawer (object):
         n = len(self.edges)
         return sum([n ** i for i in range(0, itnum + 1)])
 
-    def get_expected_num_lines(self, itnum=None) :
+    def get_expected_num_lines(self, itnum=None):
         if itnum is None:
             itnum = self.suggested_iterations
         return len(self.edges) ** itnum
@@ -178,7 +178,7 @@ class KochSnowflake (FractalDrawer):
         FractalDrawer.__init__(self,
             [
                 Position(0, 0, 0, 1),
-                Position(1, 0, pi/3,1),
+                Position(1, 0, pi/3, 1),
                 Position(1.5, sqrt(3/4), -pi/3, 1),
                 Position(2, 0, 0, 1)
             ],
@@ -207,7 +207,7 @@ class KochSnowflake80 (FractalDrawer) :
             )
 
 
-class SierpinskiTriangle (FractalDrawer) :
+class SierpinskiTriangle (FractalDrawer):
 
     def __init__(self):
         FractalDrawer.__init__(self,
@@ -222,7 +222,7 @@ class SierpinskiTriangle (FractalDrawer) :
             )
 
 
-class SierpinskiCarpet(FractalDrawer) :
+class SierpinskiCarpet(FractalDrawer):
 
     def __init__(self):
         FractalDrawer.__init__(self,
@@ -242,7 +242,7 @@ class SierpinskiCarpet(FractalDrawer) :
             )
 
 
-class CantorSet (FractalDrawer) :
+class CantorSet (FractalDrawer):
     def __init__(self):
         FractalDrawer.__init__(self,
             [
@@ -305,7 +305,7 @@ class Peano(FractalDrawer):
             )
 
 
-class Hilbert(FractalDrawer) :
+class Hilbert(FractalDrawer):
     def __init__(self):
         FractalDrawer.__init__(self,
             [
@@ -323,7 +323,7 @@ class Hilbert(FractalDrawer) :
             6
             )
 
-    
+
 class App(Tk):
     """ call .mainloop() to launch """
     def __init__(self, available_fractals):
@@ -331,10 +331,11 @@ class App(Tk):
         self.available_fractals = available_fractals
         self.selected_fractal_index = None
         self.initUI()
+
     def initUI(self):
         self.geometry("400x250+300+300")
         self.title("Choose fractal")
-        self.mainframe = Frame(self, background="gray")   
+        self.mainframe = Frame(self, background="gray")
         self.mainframe.pack(fill=BOTH, expand=1)
         self.lb = Listbox(self.mainframe)
         for x in self.available_fractals:
@@ -343,12 +344,14 @@ class App(Tk):
         self.lb.place(x=20, y=20)
         self.status = StringVar()
         self.label = Label(self.mainframe, textvariable=self.status)
-        self.label.place(x=20,y=180)
+        self.label.place(x=20, y=180)
+
     def onSelect(self, selected):
         self.selected_fractal_index = selected.widget.curselection()[0]
-        fractal = available_fractals[self.selected_fractal_index];
+        fractal = available_fractals[self.selected_fractal_index]
         self.draw(fractal)
-    def draw(self,fractal):
+
+    def draw(self, fractal):
         fig = pylab.figure()
         ax = fig.add_subplot(111, autoscale_on=False, xlim=(-0.1, 1.1), ylim=(-0.1, 1.1))
         string = "Expected %d calls and %d lines for drawing the figure" % \
@@ -360,7 +363,7 @@ class App(Tk):
         fig.canvas.set_window_title(fractal.description)
         plotPoints();
         pylab.show()
-        
+
 ##### TEST ############################
 
 
@@ -376,7 +379,5 @@ if __name__ == "__main__":
     #available_fractals.append(Peano())
     available_fractals.append(Hilbert())
     #TODO: Fern; Peano
-    available_fractals = sorted(available_fractals, key=lambda x:x.description)
+    available_fractals = sorted(available_fractals, key=lambda x: x.description)
     App(available_fractals).mainloop()
-    
-    
