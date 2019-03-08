@@ -5,10 +5,10 @@ from __future__ import division
 
 import pylab
 from math import *
-from scipy.optimize import fsolve   #fsolve(function,root_estimate,args=(), derivative=None)
+from scipy.optimize import fsolve   # fsolve(function,root_estimate,args=(), derivative=None)
 from Tkinter import *
 
-#N.B. all computational weight is in pylab.plot()
+# all computational weight are is in pylab.plot()
 
 
 ######  FUNCTIONS  ##############################
@@ -21,6 +21,7 @@ def to_polar(x, y, cx=0, cy=0):
     alpha = atan2(y, x)
     return [alpha, rho]
 
+
 def to_cart(alpha, rho, cx=0, cy=0):
     """ Convert polar coordinates to cartesian, w.r.t. origin (cx, cy) """
     x = rho * cos(alpha)
@@ -28,10 +29,10 @@ def to_cart(alpha, rho, cx=0, cy=0):
     return [x + cx, y + cy]
 
 
-def line(x1, y1, x2, y2, *args, **kwargs) :
+def line(x1, y1, x2, y2, *args, **kwargs):
     """ Plot line. VERY slow... """
-    #print("line "+str(x1)+" "+str(y1)+" "+str(x2)+" "+str(y2)+" ")
-    pylab.plot([x1,x2], [y1,y2], *args, **kwargs);
+    # print("line "+str(x1)+" "+str(y1)+" "+str(x2)+" "+str(y2)+" ")
+    pylab.plot([x1, x2], [y1, y2], *args, **kwargs);
     
 
 def linePol(x, y, alpha, rho, *args, **kwargs) :
@@ -42,12 +43,12 @@ def linePol(x, y, alpha, rho, *args, **kwargs) :
 points_x=[]
 points_y=[]
 
-def storePoint(x,y) :
+def storePoint(x, y):
     """ Save the point in (points_x,points_y) """
     points_x.append(x)
     points_y.append(y)
     
-def plotPoints(*args, **kwargs) :
+def plotPoints(*args, **kwargs):
     """ Plot all the points stored in points_x,points_y """
     pylab.plot(points_x, points_y, ".", markersize=1, *args, **kwargs)
     
@@ -102,7 +103,7 @@ class FractalDrawer (object) :
         self.suggested_iterations = suggested_iterations
         self.common_size = None
         sizes = set([e.o_rho for e in edges])
-        #print "sizes=" + str(sizes) #DEBUG
+        # print "sizes=" + str(sizes) #DEBUG
         if not sizes:
             self.complexity = FractalDrawer.EMPTY #no elements
         elif len(sizes) == 1:
@@ -139,13 +140,13 @@ class FractalDrawer (object) :
         @param x,y,o_alpha,o_rho   position, rotation,dimension of given object
         @param itnum maximum degree of recursion 
         """
-        #print("qui "+str(x)+" "+str(y)+" "+str(o_alpha)+" "+str(o_rho)+" ")
+        # print("qui "+str(x)+" "+str(y)+" "+str(o_alpha)+" "+str(o_rho)+" ")
         if itnum == 0:
             linePol(x, y, o_alpha, o_rho, color='black')
-            #storePoint(x, y)
+            # storePoint(x, y)
         else:
             scale = o_rho / self.full_size
-            #print "qua " + str(scale)
+            # print "qua " + str(scale)
             for e in self.edges :
                 o_alpha1 = o_alpha + e.o_alpha
                 o_rho1 = e.o_rho * scale
@@ -173,10 +174,10 @@ class KochSnowflake (FractalDrawer) :
     def __init__(self):
         FractalDrawer.__init__(self,
             [
-                Position(0,0,0,1),
-                Position(1,0,pi/3,1),
-                Position(1.5,sqrt(3/4),-pi/3,1),
-                Position(2,0,0,1)
+                Position(0, 0, 0, 1),
+                Position(1, 0, pi/3,1),
+                Position(1.5, sqrt(3/4), -pi/3, 1),
+                Position(2, 0, 0, 1)
             ],
             3,
             "Kock snowflake",
@@ -191,10 +192,10 @@ class KochSnowflake80 (FractalDrawer) :
         cos_degree = cos(degree)
         FractalDrawer.__init__(self,
             [
-                Position(0,0,0,1),
-                Position(1,0,degree,1),
-                Position(1+cos_degree, sin_degree, -degree, 1),
-                Position(1+2*cos_degree,0,0,1)
+                Position(0, 0, 0, 1),
+                Position(1, 0, degree, 1),
+                Position(1 + cos_degree, sin_degree, -degree, 1),
+                Position(1 + 2 * cos_degree, 0, 0, 1)
             ],
             2+2*cos_degree,
             "Kock snowflake 80°",
@@ -206,9 +207,9 @@ class SierpinskiTriangle (FractalDrawer) :
     def __init__(self):
         FractalDrawer.__init__(self,
             [
-                Position(0.0,0.0,0.0,1.0),
-                Position(0.5,sqrt(3/4),0.0,1.0),
-                Position(1.0,0.0,0.0,1.0)
+                Position(0.0, 0.0, 0.0, 1.0),
+                Position(0.5, sqrt(3/4), 0.0, 1.0),
+                Position(1.0, 0.0, 0.0, 1.0)
             ],
             2,
             "Sierpinski triangle",
@@ -220,14 +221,14 @@ class SierpinskiCarpet(FractalDrawer) :
     def __init__(self):
         FractalDrawer.__init__(self,
             [
-                Position(0.0,0.0,0.0,1.0),
-                Position(1.0,0.0,0.0,1.0),
-                Position(2.0,0.0,0.0,1.0),
-                Position(0.0,1.0,0.0,1.0),
-                Position(2.0,1.0,0.0,1.0),
-                Position(0.0,2.0,0.0,1.0),
-                Position(1.0,2.0,0.0,1.0),
-                Position(2.0,2.0,0.0,1.0),
+                Position(0.0, 0.0, 0.0, 1.0),
+                Position(1.0, 0.0, 0.0, 1.0),
+                Position(2.0, 0.0, 0.0, 1.0),
+                Position(0.0, 1.0, 0.0, 1.0),
+                Position(2.0, 1.0, 0.0, 1.0),
+                Position(0.0, 2.0, 0.0, 1.0),
+                Position(1.0, 2.0, 0.0, 1.0),
+                Position(2.0, 2.0, 0.0, 1.0),
             ],
             3,
             "Sierpinski carpet (slow)",
@@ -238,8 +239,8 @@ class CantorSet (FractalDrawer) :
     def __init__(self):
         FractalDrawer.__init__(self,
             [
-                Position(0,0,0,1),
-                Position(2,0,0,1)
+                Position(0, 0, 0, 1),
+                Position(2, 0, 0, 1)
             ],
             3,
             "Cantor set",
@@ -250,10 +251,10 @@ class CantorDust(FractalDrawer) :
     def __init__(self):
         FractalDrawer.__init__(self,
             [
-                Position(0,0,0,1),
-                Position(2,0,0,1),
-                Position(0,2,0,1),
-                Position(2,2,0,1)
+                Position(0, 0, 0, 1),
+                Position(2, 0, 0, 1),
+                Position(0, 2, 0, 1),
+                Position(2, 2, 0, 1)
             ],
             3,
             "Cantor dust",
@@ -264,9 +265,9 @@ class Dragon(FractalDrawer) :
     def __init__(self):
         FractalDrawer.__init__(self,
             [
-                Position(0,0,-pi/4,sqrt(2)),
-                Position(1,-1,pi/4,2*sqrt(2)),
-                Position(3,1,-pi/4,sqrt(2))
+                Position(0, 0, -pi/4, sqrt(2)),
+                Position(1, -1, pi/4, 2*sqrt(2)),
+                Position(3, 1, -pi/4, sqrt(2))
             ],
             4,
             "Dragon",
@@ -277,16 +278,16 @@ class Peano(FractalDrawer) :
     def __init__(self):
         FractalDrawer.__init__(self,
             [
-                Position(0,0,0,1),
-                Position(1,0,pi/2,1),
-                Position(1,1,pi,1),
-                Position(0,1,pi/2,1),
-                Position(0,2,0,3),
-                Position(3,2,-pi/2,1),
-                Position(3,1,pi,1),
-                Position(2,1,-pi/2,1),
-                Position(2,0,0,1)
-                #don't work
+                Position(0, 0, 0, 1),
+                Position(1, 0, pi/2, 1),
+                Position(1, 1, pi, 1),
+                Position(0, 1, pi/2, 1),
+                Position(0, 2, 0, 3),
+                Position(3, 2, -pi/2, 1),
+                Position(3, 1, pi, 1),
+                Position(2, 1, -pi/2, 1),
+                Position(2, 0, 0, 1)
+                # don't work
             ],
             3,
             "Peano curve",
@@ -297,14 +298,14 @@ class Hilbert(FractalDrawer) :
     def __init__(self):
         FractalDrawer.__init__(self,
             [
-                Position(0,1,-pi/2,1),
-                Position(0,1,0,1),
-                Position(1,1,0,1),
-                Position(2,0,pi/2,1)
-#                Position(2,0,-pi/2,1),
-#                Position(1,-1,0,1),
-#                Position(0,-1,0,1),
-#                Position(0,-1,pi/2,1)
+                Position(0, 1, -pi/2, 1),
+                Position(0, 1, 0, 1),
+                Position(1, 1, 0, 1),
+                Position(2, 0, pi/2, 1)
+#                Position(2, 0, -pi/2, 1),
+#                Position(1, -1, 0, 1),
+#                Position(0, -1, 0, 1),
+#                Position(0, -1, pi/2, 1)
             ],
             2,
             "Hilbert curve (simplified)",
@@ -340,7 +341,7 @@ class App(Tk):
         self.draw(fractal)
     def draw(self,fractal):
         fig = pylab.figure()
-        ax = fig.add_subplot(111, autoscale_on=False, xlim=(-0.1,1.1), ylim=(-0.1,1.1))
+        ax = fig.add_subplot(111, autoscale_on=False, xlim=(-0.1, 1.1), ylim=(-0.1, 1.1))
         string = "Expected " + str(fractal.get_expected_num_calls()) + " calls and " + str(fractal.get_expected_num_lines()) + " lines for drawing the figure"
         print string
         self.status.set(string) #FIXME need refresh...
