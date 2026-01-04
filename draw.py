@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: latin1 -*-
 
 from __future__ import division
@@ -6,7 +6,10 @@ from __future__ import division
 import pylab
 from math import *
 from scipy.optimize import fsolve   # fsolve(function,root_estimate,args=(), derivative=None)
-from Tkinter import *
+try:
+    from Tkinter import *
+except ImportError:
+    from tkinter import *
 
 # all computational weight are is in pylab.plot()
 
@@ -57,6 +60,7 @@ def plotPoints(*args, **kwargs):
 
 def clearPoints():
     """ Initialize points_x,points_y """
+    global points_x, points_y
     points_x = []
     points_y = []
 
@@ -133,7 +137,11 @@ class FractalDrawer (object):
                 for e in self.edges:
                     ret -= e.o_rho ** d
                 return ret
-            return fsolve(func, 1.0)
+            res = fsolve(func, 1.0)
+            try:
+                return float(res[0])
+            except Exception:
+                return float(res)
         else:
             return -1
 
@@ -202,7 +210,7 @@ class KochSnowflake80 (FractalDrawer) :
                 Position(1 + 2 * cos_degree, 0, 0, 1)
             ],
             2+2*cos_degree,
-            "Kock snowflake 80°",
+            "Kock snowflake 80 deg.",
             5
             )
 
@@ -344,7 +352,7 @@ class App(Tk):
         self.lb.place(x=20, y=20)
         self.status = StringVar()
         self.label = Label(self.mainframe, textvariable=self.status)
-        self.label.place(x=20, y=180)
+        self.label.place(x=20, y=220)
 
     def onSelect(self, selected):
         self.selected_fractal_index = selected.widget.curselection()[0]
@@ -356,11 +364,14 @@ class App(Tk):
         ax = fig.add_subplot(111, autoscale_on=False, xlim=(-0.1, 1.1), ylim=(-0.1, 1.1))
         string = "Expected %d calls and %d lines for drawing the figure" % \
                  (fractal.get_expected_num_calls(), fractal.get_expected_num_lines())
-        print string
+        print(string)
         self.status.set(string)  # FIXME need refresh...
         pylab.title(fractal.get_dimension())
         fractal.draw()
-        fig.canvas.set_window_title(fractal.description)
+        try:
+            fig.canvas.manager.set_window_title(fractal.description)
+        except Exception:
+            pass
         plotPoints();
         pylab.show()
 
