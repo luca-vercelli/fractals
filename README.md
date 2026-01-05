@@ -13,19 +13,15 @@ Here, two kinds of curves are supported:
 
 If the whole object has linear size $S$, and it is made up of $n$ equal copies of linear size $s$:
 
-    $$
-    S^d = n s^d
-    $$
+$$ S^d = n s^d $$
 
-This equation can be solved algebrically to find $d$.
+This equation can be solved algebrically to find $d=\log_{S/s}n$.
 
 ### B. Fractals made up of copies of the same figure, with different sizes
 
 If the whole object has linear size $S$, and it is made up of $n$ different copies whose linear sizes is $s_i$:
 
-    $$
-    S^d = \sum_{i=1}^n s_i^d
-    $$
+$$ S^d = \sum_{i=1}^n s_i^d $$
 
 This equation can be solved *numerically* to find $d$.
 
