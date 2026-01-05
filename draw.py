@@ -10,9 +10,13 @@ try:
     from Tkinter import *
 except ImportError:
     from tkinter import *
+from enum import Enum
 
 # all computational weight are is in pylab.plot()
 
+class FractalKind(Enum):
+    KOCH = "A"
+    NOT_EQ_KOCH = "B"
 
 ######  FUNCTIONS  ##############################
 
@@ -69,7 +73,14 @@ def clearPoints():
 
 
 class Position:
-    """ Position and orientation of any 2D-object """
+    """
+    Position, orientation, dimension of any segment (may represent a 2D object as well)
+    This class keeps:
+        x, y : cartesian coordinates of initial point
+        o_alpha : orientation (angle) of the segment
+        o_rho : length of the segment
+        alpha, rho : polar coordinates of initial point
+    """
 
     def __init__(self, x, y, o_alpha, o_rho):
         self.x = x
@@ -95,8 +106,6 @@ class FractalDrawer (object):
     However we need a "basis" for the fractal, and we assume this is the segment (0,0)-(full_size,0)
     """
 
-    (EMPTY, KOCH, NOT_EQ_KOCH, MULTI_KOCH) = (0, 1, 2, 3)  # Supported kinds of fractals
-
     def __init__(self, edges, full_size, description, suggested_iterations):
         """
         Constructor
@@ -112,12 +121,12 @@ class FractalDrawer (object):
         sizes = set([e.o_rho for e in edges])
         # print "sizes=" + str(sizes) #DEBUG
         if not sizes:
-            self.complexity = FractalDrawer.EMPTY  # no elements
+            self.complexity = None  # no elements
         elif len(sizes) == 1:
-            self.complexity = FractalDrawer.KOCH  # all elements with same size
+            self.complexity = FractalKind.KOCH  # all elements with same size
             self.common_size = sizes.pop()
         else:
-            self.complexity = FractalDrawer.NOT_EQ_KOCH  # elements with different sizes
+            self.complexity = FractalKind.NOT_EQ_KOCH  # elements with different sizes
 
     def __str__(self):
         return self.description
@@ -127,10 +136,10 @@ class FractalDrawer (object):
 
     def get_dimension(self):
         """ Calculate fractal dimension """
-        if self.complexity == FractalDrawer.KOCH:
+        if self.complexity == FractalKind.KOCH:
             # here: S**d = n * s**d
             return log(len(self.edges)) / log(self.full_size / self.common_size)
-        elif self.complexity == FractalDrawer.NOT_EQ_KOCH:
+        elif self.complexity == FractalKind.NOT_EQ_KOCH:
             # here: S**d = Sum_i ( s_i**d )
             def func(d):
                 ret = self.full_size ** d
@@ -143,7 +152,7 @@ class FractalDrawer (object):
             except Exception:
                 return float(res)
         else:
-            return -1
+            return None
 
     def _draw(self, x, y, o_alpha, o_rho, itnum):
         """
@@ -164,9 +173,9 @@ class FractalDrawer (object):
                 [x1, y1] = to_cart(o_alpha + e.alpha, e.rho * scale, x, y)
                 self._draw(x1, y1, o_alpha1, o_rho1, itnum - 1)
 
-    def draw(self):
+    def draw(self, num_iter):
         """ Plot this fractal with standard parameters """
-        self._draw(0, 0, 0, 1, self.suggested_iterations)
+        self._draw(0, 0, 0, 1, num_iter)
 
     def get_expected_num_calls(self, itnum=None):
         if itnum is None:
@@ -199,7 +208,7 @@ class KochSnowflake (FractalDrawer):
 class KochSnowflake80 (FractalDrawer) :
 
     def __init__(self):
-        degree = pi/180*80  #try changing this parameter from 0 to 90 degrees
+        degree = pi / 180 * 80  # you may try changing this parameter from 0 to 90 degrees
         sin_degree = sin(degree)
         cos_degree = cos(degree)
         FractalDrawer.__init__(self,
@@ -212,6 +221,22 @@ class KochSnowflake80 (FractalDrawer) :
             2+2*cos_degree,
             "Kock snowflake 80 deg.",
             5
+            )
+
+
+class KochAsymm (FractalDrawer):
+
+    def __init__(self):
+        FractalDrawer.__init__(self,
+            [
+                Position(0, 0, 0, 2),
+                Position(2, 0, pi/3, 1),
+                Position(2.5, sqrt(3)/2, -pi/3, 1),
+                Position(3, 0, 0, 1)
+            ],
+            4,
+            "Kock asymmetric snowflake",
+            6
             )
 
 
@@ -292,27 +317,6 @@ class Dragon(FractalDrawer):
             )
 
 
-class Peano(FractalDrawer):
-    def __init__(self):
-        FractalDrawer.__init__(self,
-            [
-                Position(0, 0, 0, 1),
-                Position(1, 0, pi/2, 1),
-                Position(1, 1, pi, 1),
-                Position(0, 1, pi/2, 1),
-                Position(0, 2, 0, 3),
-                Position(3, 2, -pi/2, 1),
-                Position(3, 1, pi, 1),
-                Position(2, 1, -pi/2, 1),
-                Position(2, 0, 0, 1)
-                # don't work
-            ],
-            3,
-            "Peano curve",
-            2
-            )
-
-
 class Hilbert(FractalDrawer):
     def __init__(self):
         FractalDrawer.__init__(self,
@@ -327,7 +331,7 @@ class Hilbert(FractalDrawer):
 #                Position(0, -1, pi/2, 1)
             ],
             2,
-            "Hilbert curve (simplified)",
+            "Peano/Hilbert curve (simplified)",
             6
             )
 
@@ -337,6 +341,7 @@ class App(Tk):
     def __init__(self, available_fractals):
         Tk.__init__(self)
         self.available_fractals = available_fractals
+        self.selected_fractal = None
         self.selected_fractal_index = None
         self.initUI()
 
@@ -348,32 +353,83 @@ class App(Tk):
         self.lb = Listbox(self.mainframe)
         for x in self.available_fractals:
             self.lb.insert(END, x)
-        self.lb.bind("<<ListboxSelect>>", self.onSelect)
+        self.lb.bind("<<ListboxSelect>>", self.on_select)
         self.lb.place(x=20, y=20)
         self.status = StringVar()
         self.label = Label(self.mainframe, textvariable=self.status)
-        self.label.place(x=20, y=220)
+        self.label.place(x=20, y=230)
+        self.input_var = StringVar()
+        self.input_entry = Entry(self.mainframe, textvariable=self.input_var)
+        self.input_entry.place(x=200, y=100, width=100)
+        self.input_button = Button(self.mainframe, text="Draw", command=self.on_click)
+        self.input_button.place(x=200, y=200)
+        # Ensure all matplotlib windows are closed when main window is closed
+        self.protocol("WM_DELETE_WINDOW", self.on_close)
 
-    def onSelect(self, selected):
-        self.selected_fractal_index = selected.widget.curselection()[0]
+    def on_select(self, selected):
+        try:
+            sel = selected.widget.curselection()
+            if not sel:
+                return
+            self.selected_fractal_index = sel[0]
+        except Exception:
+            return
+        self.selected_fractal = fractal = available_fractals[self.selected_fractal_index]
+        # populate entry with suggested iterations for the selected fractal
+        try:
+            self.input_var.set(str(fractal.suggested_iterations))
+        except Exception:
+            pass
+        self.show_expected()
+
+    def show_expected(self):
+        num_iter_str = self.input_var.get()
+        try:
+            num_iter = int(num_iter_str)
+        except Exception:
+            self.status.set("Invalid number of iterations: %r" % (num_iter_str,))
+            return
+        string = ""
+        if self.selected_fractal is not None:
+            string = "Expected %d calls and %d lines for drawing the figure" % \
+                 (self.selected_fractal.get_expected_num_calls(num_iter),
+                  self.selected_fractal.get_expected_num_lines(num_iter))
+        self.status.set(string)
+
+    def on_click(self):
+        num_iter_str = self.input_var.get()
+        try:
+            num_iter = int(num_iter_str)
+        except Exception:
+            self.status.set("Invalid number of iterations: %r" % (num_iter_str,))
+            return
         fractal = available_fractals[self.selected_fractal_index]
-        self.draw(fractal)
+        self.draw(fractal, num_iter)
 
-    def draw(self, fractal):
+    def draw(self, fractal, num_iter):
         fig = pylab.figure()
         ax = fig.add_subplot(111, autoscale_on=False, xlim=(-0.1, 1.1), ylim=(-0.1, 1.1))
-        string = "Expected %d calls and %d lines for drawing the figure" % \
-                 (fractal.get_expected_num_calls(), fractal.get_expected_num_lines())
-        print(string)
-        self.status.set(string)  # FIXME need refresh...
-        pylab.title(fractal.get_dimension())
-        fractal.draw()
+        pylab.title("Dim. " + str(fractal.get_dimension()) + " kind " + str(fractal.complexity.value))
+        fractal.draw(num_iter)
         try:
             fig.canvas.manager.set_window_title(fractal.description)
         except Exception:
             pass
         plotPoints();
-        pylab.show()
+        try:
+            pylab.show(block=False)
+        except TypeError:
+            pylab.show()
+
+    def on_close(self):
+        try:
+            pylab.close('all')
+        except Exception:
+            pass
+        try:
+            self.destroy()
+        except Exception:
+            pass
 
 ##### TEST ############################
 
@@ -382,13 +438,12 @@ if __name__ == "__main__":
     available_fractals = []
     available_fractals.append(KochSnowflake())
     available_fractals.append(KochSnowflake80())
+    available_fractals.append(KochAsymm())
     available_fractals.append(SierpinskiTriangle())
     available_fractals.append(SierpinskiCarpet())
     available_fractals.append(CantorSet())
     available_fractals.append(CantorDust())
     available_fractals.append(Dragon())
-    #available_fractals.append(Peano())
     available_fractals.append(Hilbert())
-    #TODO: Fern; Peano
     available_fractals = sorted(available_fractals, key=lambda x: x.description)
     App(available_fractals).mainloop()
