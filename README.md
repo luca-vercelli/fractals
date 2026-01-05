@@ -17,6 +17,8 @@ $$ S^d = n s^d $$
 
 This equation can be solved algebrically to find $d=\log_{S/s}n$.
 
+Most curves belong or can be reduced to this category: Koch snowflakes, Sierpinski triangle and carpet, Cantor set, ... 
+
 ### B. Fractals made up of copies of the same figure, with different sizes
 
 If the whole object has linear size $S$, and it is made up of $n$ different copies whose linear sizes is $s_i$:
@@ -24,6 +26,8 @@ If the whole object has linear size $S$, and it is made up of $n$ different copi
 $$ S^d = \sum_{i=1}^n s_i^d $$
 
 This equation can be solved *numerically* to find $d$.
+
+We povide an *asymmetrical Koch snowflake* as an example for this category.
 
 ## Requirements
 
@@ -37,4 +41,11 @@ Or, using pip:
 
     pip install numpy scipy matplotlib
 
+## Run
+
+In *nix environment, type
+
+    python3 ./draw.py
+
+An interface is shown for selection of curves.
 
